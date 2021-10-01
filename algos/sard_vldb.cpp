@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "util.h"
+#include "../util.h"
 
 using namespace std;
 
@@ -8,6 +8,9 @@ double theta = 200;
 // 0=none; 1=ellipse; 2=ellipse+angle
 int optimization_mode = 2;
 
+/**
+ * Composite structure to store temporary results.
+ */
 struct Car {
     Worker cur_path;
     // (rid,share_dist)
@@ -15,8 +18,11 @@ struct Car {
     set<int> reqs{};
 };
 
-Car get_best_k(const set<int> &groups, int w_id, map<int, int> &degrees, map<int, set<int>> &graph);
+Car get_best_k(const set<int> &reqs, int w_id, map<int, int> &degrees, map<int, set<int>> &graph);
 
+/**
+ * Calculate the angle between vectors (sa,sb) and (ea,eb).
+ */
 double get_line_angle(vertex sa, vertex sb, vertex ea, vertex eb) {
     pair<double, double> v1 = {ea.x - sb.x, ea.y - sb.y};
     if (sb.x == ea.x && sb.y == ea.y) v1 = {ea.x - sa.x, ea.y - sa.y};
@@ -27,6 +33,9 @@ double get_line_angle(vertex sa, vertex sb, vertex ea, vertex eb) {
     return acos(fmin(fmax(cos_theta, -1.0), 1.0)) * 180 / 3.1415926;
 }
 
+/**
+ * Enumerating request combinations with angle pruning.
+ */
 map<int, set<int>> grouping_by_angle(int *working_set, int size) {
     map<int, set<int>> res;
     double fit = INF;
@@ -59,7 +68,9 @@ map<int, set<int>> grouping_by_angle(int *working_set, int size) {
     return res;
 }
 
-
+/**
+ * Enumerating request combinations with angle and ellipse pruning.
+ */
 map<int, set<int>> grouping_by_angle_with_ellipse(int *working_set, int size) {
     map<int, set<int>> res;
     double fit = INF;
@@ -94,6 +105,9 @@ map<int, set<int>> grouping_by_angle_with_ellipse(int *working_set, int size) {
     return res;
 }
 
+/**
+ * Retrieve all common neighbors of two requests in the shareability network.
+ */
 set<int> get_common_neighbors(set<int> s1, set<int> s2) {
     auto it1 = s1.begin(), it2 = s2.begin();
     set<int> common;
@@ -110,7 +124,6 @@ set<int> get_common_neighbors(set<int> s1, set<int> s2) {
 }
 
 void main_loop() {
-//    int *order_counter = new int[m];
     int idx = 0, cur = 0;
     CURRENT_TIME = R[0].tim + batch_time;
     int accepted_size[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -155,7 +168,6 @@ void main_loop() {
             vector<int> car = single_search(R[r].s, R[r].ddl - CURRENT_TIME);
             priority_queue<pair<double, int>> valued_car;
             for (int cand_c: car) {
-//                if (!W[cand_c].S.empty() || W[cand_c].tim > CURRENT_TIME) continue; //skip busy car
                 try_insertion(W[cand_c], r, fit);
                 if (fit >= INF || fit == -1) continue;
                 valued_car.push({fit / R[r].len, cand_c});
@@ -185,7 +197,6 @@ void main_loop() {
             }
             // pickup round (only work for cands updated worker)
             for (const auto &w_id: updated_worker) {
-//                if (pools[w_id].reqs.size() > 20) cout << pools[w_id].reqs.size() << endl;
                 Car best_g = get_best_k(pools[w_id].reqs, w_id, degrees, graph);
                 // Not accepted, rematching in next turn
                 for (int r_id: pools[w_id].reqs) {
@@ -208,7 +219,6 @@ void main_loop() {
         }
         for (const auto &car: car_accepted) {
             W[car.first] = car.second.cur_path;
-//            order_counter[car.first] += car.second.reqs.size();
             accepted_size[car.second.reqs.size() - 1]++;
             for (auto r: car.second.reqs) {
                 working_set.erase(r);
@@ -238,42 +248,14 @@ void main_loop() {
     cout << endl;
     cout << "evicted: " << evicted << endl;
     cout << "ssspCount:" << ssspCounter << endl;
-
-//    for (int i = 0; i < m; ++i) {
-//        cout << i << " " << order_counter[i] << endl;
-//    }
-
-//    ofstream f;
-//    f.open("chengdu_schedule.txt");
-//    for (auto &route: schedule) {
-//        for (auto & i : route) {
-//            f << i.first << " ";
-//        }
-//        f << endl;
-//    }
-//    for (auto &route: schedule) {
-//        if (route.size() < 2) f << route[0].first << " " << route[0].second << endl;
-//        else {
-//            for (int i = 1; i < route.size(); i++) {
-//                vector<NodeID> path;
-//                long cur_time = route[i - 1].second;
-//                int prev_node = route[i - 1].first;
-//                sssp->shortestPathByNode(route[i - 1].first, route[i].first, path);
-//                for (NodeID node: path) {
-//                    cur_time += sssp->shortestDistance(prev_node, node);
-//                    f << node << " " << cur_time << " ";
-//                    prev_node = node;
-//                }
-//            }
-//            f << endl;
-//        }
-//    }
-//    f.close();
 }
 
+/**
+ * Calculate the shareability loss of the combination.
+ */
 pair<double, double>
 group_scoring(const vector<int> &reqs, Worker updated_worker, int w_id, const map<int, set<int>> &graph) {
-    double score = 0;
+    double score;
     double merged = updated_worker.reach.back() - W[w_id].tim;
     double origin = 0;
     set<int> req_set;
@@ -303,6 +285,9 @@ group_scoring(const vector<int> &reqs, Worker updated_worker, int w_id, const ma
     return {score, merged / origin};
 }
 
+/**
+ * Select best group from candidate groups.
+ */
 pair<vector<int>, pair<pair<double, double>, Worker>> get_best_group(
         map<vector<int>, pair<pair<double, double>, Worker>> groups) {
     auto best_it = groups.begin();
@@ -343,6 +328,10 @@ pair<vector<int>, vector<int>> merge_and_diff(const vector<int> &a, const vector
     return {merged, diff};
 }
 
+/**
+ * C_n^(n-1).
+ * For pruning: subgroup must exist in previous enumeration.
+ */
 vector<vector<int>> permutation_group(const vector<int> &g) {
     vector<vector<int>> res(g.size());
     for (uint i = 0; i < g.size(); ++i) {
@@ -353,6 +342,10 @@ vector<vector<int>> permutation_group(const vector<int> &g) {
     return res;
 }
 
+/**
+ * Retrieve the maximum degree request `max_r` in shareability graph among `group`.
+ * @return (group-{max_r}, max_r)
+ */
 pair<vector<int>, int> split_max_deg(const vector<int> &group, map<int, int> &degrees) {
     int idx = 0, max_deg = degrees[0], len_group = group.size();
     for (uint i = 1; i < len_group; i++) {
@@ -366,6 +359,9 @@ pair<vector<int>, int> split_max_deg(const vector<int> &group, map<int, int> &de
     return {res, group[idx]};
 }
 
+/**
+ * Check whether the requests `reqs` forms clique in the shareability graph
+ */
 bool check_clique(vector<int> reqs, map<int, set<int>> &graph) {
     for (int i = 0; i < reqs.size(); i++) {
         auto it = graph.find(reqs[i]);
@@ -377,8 +373,11 @@ bool check_clique(vector<int> reqs, map<int, set<int>> &graph) {
     return true;
 }
 
+/**
+ * Combination enumeration
+ */
 unordered_map<int, map<vector<int>, Worker>>
-grouping_opt(int w_id, const vector<int> &reqs, map<int, int> &degrees, map<int, set<int>> &graph) {
+grouping(int w_id, const vector<int> &reqs, map<int, int> &degrees, map<int, set<int>> &graph) {
     unordered_map<int, map<vector<int>, Worker>> res;
     set<vector<int>> build;
     // 1. set up first layer requests
@@ -422,10 +421,13 @@ grouping_opt(int w_id, const vector<int> &reqs, map<int, int> &degrees, map<int,
     return res;
 }
 
+/**
+ * Retrieve the combination with the least shareability loss in the combination tree.
+ */
 Car get_best_k(const set<int> &reqs, int w_id, map<int, int> &degrees, map<int, set<int>> &graph) {
     vector<int> reqs_vec;
     for (int r: reqs) reqs_vec.push_back(r);
-    auto groups = grouping_opt(w_id, reqs_vec, degrees, graph);
+    auto groups = grouping(w_id, reqs_vec, degrees, graph);
     map<vector<int>, pair<pair<double, double>, Worker>> process_seq;
     for (const auto &group: groups) {
         for (const auto &it: group.second) {

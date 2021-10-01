@@ -2,9 +2,9 @@
 #define SHARABLENETWORKEXP_TAXI_SCHEDULE_H
 
 #include <vector>
-#include "../global.h"
-#include "../metric.h"
-#include "../util.h"
+#include "../../global.h"
+#include "../../metric.h"
+#include "../../util.h"
 
 using namespace std;
 typedef int ReqID;

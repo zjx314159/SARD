@@ -1,7 +1,7 @@
 
 #include <bits/stdc++.h>
 #include <glpk.h>
-#include "util.h"
+#include "../util.h"
 
 using namespace std;
 

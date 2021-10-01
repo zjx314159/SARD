@@ -3,8 +3,8 @@
 
 using namespace std;
 
-#include "util.h"
-#include "mcmf.h"
+#include "../util.h"
+#include "../libs/mcmf.h"
 
 void main_loop() {
     int cur = 0;

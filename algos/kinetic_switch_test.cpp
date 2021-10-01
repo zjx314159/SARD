@@ -3,9 +3,9 @@
 
 using namespace std;
 
-#include "util.h"
-#include "threadpool.h"
-#include "mcmf.h"
+#include "../util.h"
+#include "../libs/threadpool.h"
+#include "../libs/mcmf.h"
 
 auto pool = new threadpool(40);
 int batch_time = 5;
