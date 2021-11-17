@@ -12,7 +12,7 @@ set(SIMD_SRC
 
 add_executable(sample sample.cpp)
 add_executable(pruneGDP algos/pruneGDP.cpp ${ENV_SRC} )
-add_executable(SARD algos/sard_vldb.cpp ${ENV_SRC} )
+add_executable(SARD algos/sard.cpp ${ENV_SRC} )
 add_executable(pruneGDPRand algos/RAND.cpp ${ENV_SRC} )
 add_executable(GAS algos/gas_vldb.cpp ${ENV_SRC})
 add_executable(RTV algos/rtv_pnas.cpp ${ENV_SRC})
