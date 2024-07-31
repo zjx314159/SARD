@@ -1,6 +1,6 @@
-# STRide: a Framework to Exploit the Structure Information of Shareability Graph in Ridesharing Services
+# StructRide: a Framework to Exploit the Structure Information of Shareability Graph in Ridesharing Services
 ***
-The experiment code of STRide is stored in this repository for reproducing the experimental results.
+The experiment code of StructRide is stored in this repository for reproducing the experimental results.
 
 ## Brief Introduction
 * `algos`: The entry of the implementation of baseline algorithms and `SARD`.
@@ -25,4 +25,5 @@ and download the yellow and green taxi data from the official website of [New Yo
 
 ## Contact
 - Yu Chen: yu.chen@stu.ecnu.edu.cn
+- Jiexi Zhan: jxzhan@stu.ecnu.edu.cn
 - Peng Cheng: pcheng@sei.ecnu.edu.cn
