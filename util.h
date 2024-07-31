@@ -10,7 +10,7 @@ using namespace std;
 #include "metric.h"
 #include "labels.h"
 #include "libs/threadpool.h"
-#include "kinetic_tree/taxi_schedule.h"
+#include "libs/kinetic_tree/taxi_schedule.h"
 
 #ifdef WATCH_MEM
 #include "monitor.h"
