@@ -14,8 +14,40 @@ The experiment code of StructRide is stored in this repository for reproducing t
 * `global`: Global variables.
 * `util`: Useful util functions in the ridesharing lifecycle.
 
+## Environment
+
+gcc/g++ version: 7.4.0 
+
+OS: Ubuntu
+
+## Compile the algorithms
+
+`cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE -B cmake-build-debug -G "Unix Makefiles"`
+
+`cmake --build cmake-build-debug --config Debug -j 14 --`
+
+## Run the algorithms
+
+Run the SARD algorithm with different pruning strategies:
+
+`scripts/bench_sard.sh [--dataset] SARD [--opt]`
+
+`opt` represents different pruning modes, where 0 means no pruning strategy and 2 means angle pruning is used.
+
+Run the batch-based algorithms:
+
+`scripts/bench_batch.sh [--dataset] [--algo]`
+
+The batch-based algorithms include `gas`, `rtv` and `sard`.
+
+Run the online-based algorithms:
+
+`scripts/bench_sequential.sh [--dataset] [--algo]`
+
+The online-based algorithms include `gdp` and `rand`.
+
 ## Road Networks
-You can download the road network from [OpenStreetMap](https://www.openstreetmap.org/)
+You can download the road network from [OpenStreetMap](https://www.openstreetmap.org/).
 Besides, since we adopts the hub labeling algorithm for the shortest path query, we need to use algorithm in [link](https://github.com/BUAA-BDA/sspexp_clone) to preprocess the road network.
 
 ## Requests and Workers
